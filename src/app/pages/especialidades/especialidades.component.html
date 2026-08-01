@@ -1,0 +1,41 @@
+<div class="page-container animate-fade-in">
+  <header class="page-header">
+    <div class="header-titles">
+      <h1>Catálogo de Especialidades</h1>
+      <p class="subtitle">Parches y especialidades disponibles para el club</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary">
+        <span class="icon">🔍</span> Buscar Especialidad
+      </button>
+      <button class="btn btn-primary">
+        <span class="icon">➕</span> Nueva Especialidad
+      </button>
+    </div>
+  </header>
+
+  <div class="catalog-grid">
+    @for (esp of especialidades; track esp.id) {
+      <div class="spec-card glass-panel">
+        <div class="spec-header">
+          <img [src]="esp.logo_url" [alt]="esp.nombre" class="spec-logo">
+          <div class="spec-actions">
+            <button class="btn-icon" title="Editar">✏️</button>
+          </div>
+        </div>
+        <div class="spec-body">
+          <span class="spec-category">{{ esp.categoria }}</span>
+          <h3 class="spec-title">{{ esp.nombre }}</h3>
+          <p class="spec-id">{{ esp.id }}</p>
+        </div>
+        <div class="spec-footer">
+          <div class="spec-stats">
+            <span class="icon">👥</span>
+            <span>{{ esp.asignados_count }} asignados</span>
+          </div>
+          <button class="btn btn-secondary btn-sm">Asignar</button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

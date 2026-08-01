@@ -1,0 +1,64 @@
+<div class="page-container animate-fade-in">
+  <header class="page-header">
+    <div class="header-titles">
+      <h1>Conquistadores</h1>
+      <p class="subtitle">Gestión del club y avance progresivo</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary">
+        <span class="icon">🔍</span> Buscar
+      </button>
+      <button class="btn btn-primary">
+        <span class="icon">➕</span> Nuevo Conquistador
+      </button>
+    </div>
+  </header>
+
+  <div class="glass-panel table-container">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Conquistador</th>
+          <th>ID</th>
+          <th>Unidad</th>
+          <th>Clase Actual</th>
+          <th>Avance Regular</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (c of conquistadores; track c.id) {
+          <tr class="table-row">
+            <td>
+              <div class="user-cell">
+                <img [src]="c.foto_url" alt="Foto perfil" class="cell-avatar">
+                <span class="cell-name">{{ c.nombre_completo }}</span>
+              </div>
+            </td>
+            <td class="cell-id">{{ c.id }}</td>
+            <td><span class="unit-badge">{{ c.unidad }}</span></td>
+            <td><strong>{{ c.clase_actual }}</strong></td>
+            <td>
+              <div class="progress-wrapper">
+                <div class="progress-bar">
+                  <div class="progress-fill" [style.width]="c.porcentaje_regular + '%'"></div>
+                </div>
+                <span class="progress-text">{{ c.porcentaje_regular }}%</span>
+              </div>
+            </td>
+            <td>
+              <span class="badge" [class]="getBadgeClass(c.estado_investidura)">
+                {{ c.estado_investidura }}
+              </span>
+            </td>
+            <td>
+              <button class="btn-icon" title="Ver Cartilla">📘</button>
+              <button class="btn-icon" title="Editar">✏️</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

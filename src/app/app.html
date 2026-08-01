@@ -1,0 +1,35 @@
+<div class="dashboard-layout animate-fade-in">
+  <!-- Sidebar -->
+  <aside class="sidebar glass-panel">
+    <div class="logo-area">
+      <div class="logo-icon">⛺</div>
+      <h2>Mi Club App</h2>
+    </div>
+    <nav class="nav-menu">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+        <span class="icon">📊</span> Dashboard
+      </a>
+      <a routerLink="/conquistadores" routerLinkActive="active" class="nav-item">
+        <span class="icon">👥</span> Conquistadores
+      </a>
+      <a routerLink="/cartillas" routerLinkActive="active" class="nav-item">
+        <span class="icon">📗</span> Cartillas
+      </a>
+      <a routerLink="/especialidades" routerLinkActive="active" class="nav-item">
+        <span class="icon">🎖️</span> Especialidades
+      </a>
+    </nav>
+    <div class="user-profile">
+      <div class="avatar">DG</div>
+      <div class="user-info">
+        <span class="name">Director General</span>
+        <span class="role">Admin</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>
