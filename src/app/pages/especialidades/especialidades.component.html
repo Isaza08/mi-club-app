@@ -5,37 +5,171 @@
       <p class="subtitle">Parches y especialidades disponibles para el club</p>
     </div>
     <div class="header-actions">
-      <button class="btn btn-secondary">
-        <span class="icon">🔍</span> Buscar Especialidad
-      </button>
-      <button class="btn btn-primary">
+      <input
+        class="search-input"
+        type="text"
+        placeholder="🔍 Buscar especialidad..."
+        [(ngModel)]="filtro"
+      />
+      <button class="btn btn-primary" (click)="abrirCrear()">
         <span class="icon">➕</span> Nueva Especialidad
       </button>
     </div>
   </header>
 
   <div class="catalog-grid">
-    @for (esp of especialidades; track esp.id) {
+    @if (cargando()) {
+      <p class="subtitle">Cargando especialidades...</p>
+    }
+    @for (esp of especialidadesFiltradas(); track esp.id) {
       <div class="spec-card glass-panel">
         <div class="spec-header">
-          <img [src]="esp.logo_url" [alt]="esp.nombre" class="spec-logo">
+          <img [src]="esp.logo_url || logoPorDefecto" [alt]="esp.nombre" class="spec-logo">
           <div class="spec-actions">
-            <button class="btn-icon" title="Editar">✏️</button>
+            <button class="btn-icon" title="Editar" (click)="abrirEditar(esp)">✏️</button>
+            <button class="btn-icon" title="Eliminar" (click)="eliminar(esp.id!)">🗑️</button>
           </div>
         </div>
-        <div class="spec-body">
+        <div class="spec-body" (click)="abrirDetalle(esp)">
           <span class="spec-category">{{ esp.categoria }}</span>
           <h3 class="spec-title">{{ esp.nombre }}</h3>
           <p class="spec-id">{{ esp.id }}</p>
+          <p class="spec-dates">
+            Inicio: {{ esp.fecha_inicio || '—' }} · Entrega: {{ esp.fecha_entrega || '—' }}
+          </p>
         </div>
         <div class="spec-footer">
           <div class="spec-stats">
             <span class="icon">👥</span>
-            <span>{{ esp.asignados_count }} asignados</span>
+            <span>{{ totalEntregados(esp) }}/{{ totalAsignados(esp.id) }} entregados</span>
           </div>
-          <button class="btn btn-secondary btn-sm">Asignar</button>
+          <div class="spec-footer-actions">
+            <button class="btn btn-secondary btn-sm" (click)="abrirDetalle(esp)">Ver</button>
+            <button class="btn btn-secondary btn-sm" (click)="abrirAsignar(esp)">Asignar</button>
+          </div>
         </div>
       </div>
+    } @empty {
+      @if (!cargando()) {
+        <p class="subtitle">No hay especialidades registradas todavía.</p>
+      }
     }
   </div>
 </div>
+
+@if (mostrarModal()) {
+  <div class="modal-overlay" (click)="cerrarModal()">
+    <div class="modal-panel glass-panel" (click)="$event.stopPropagation()">
+      <h2>{{ editandoId() ? 'Editar' : 'Nueva' }} Especialidad</h2>
+      <form (ngSubmit)="guardar()">
+        <div class="form-group">
+          <label>Nombre</label>
+          <input type="text" [(ngModel)]="formData.nombre" name="nombre" required>
+        </div>
+        <div class="form-group">
+          <label>Categoría</label>
+          <input type="text" [(ngModel)]="formData.categoria" name="categoria" required>
+        </div>
+        <div class="form-group">
+          <label>URL del logo (opcional)</label>
+          <input type="text" [(ngModel)]="formData.logo_url" name="logo_url">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Fecha de inicio (opcional)</label>
+            <input type="date" [(ngModel)]="formData.fecha_inicio" name="fecha_inicio">
+          </div>
+          <div class="form-group">
+            <label>Fecha de entrega (opcional)</label>
+            <input type="date" [(ngModel)]="formData.fecha_entrega" name="fecha_entrega">
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+            {{ guardando() ? 'Guardando...' : 'Guardar' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+@if (mostrarModalAsignar()) {
+  <div class="modal-overlay" (click)="cerrarModalAsignar()">
+    <div class="modal-panel glass-panel" (click)="$event.stopPropagation()">
+      <h2>Asignar "{{ especialidadAsignando?.nombre }}"</h2>
+      <p class="subtitle hint">
+        Inicio: {{ especialidadAsignando?.fecha_inicio || '—' }} · Entrega: {{ especialidadAsignando?.fecha_entrega || '—' }}
+      </p>
+
+      <label class="assign-all">
+        <input type="checkbox" [checked]="todosSeleccionados()" (change)="asignarATodoElClub()">
+        <strong>{{ esAdmin ? 'Asignar a todo el club' : 'Asignar a todos mis conquistadores' }}</strong>
+      </label>
+
+      <div class="assign-list">
+        @for (c of conquistadoresAsignables(); track c.id) {
+          <label class="assign-item">
+            <input
+              type="checkbox"
+              [checked]="seleccionAsignados.has(c.id!)"
+              (change)="toggleAsignado(c.id!)"
+            >
+            <span>{{ c.nombre }}</span>
+            <span class="subtitle">{{ c.clase_nombre }}</span>
+            @if (esAdmin) {
+              <span class="subtitle assign-consejero">{{ c.consejero_nombre }}</span>
+            }
+          </label>
+        } @empty {
+          <p class="subtitle">No tienes conquistadores asignados todavía.</p>
+        }
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModalAsignar()">Cancelar</button>
+        <button type="button" class="btn btn-primary" [disabled]="guardando()" (click)="guardarAsignacion()">
+          {{ guardando() ? 'Guardando...' : 'Guardar asignación' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (mostrarModalDetalle()) {
+  <div class="modal-overlay" (click)="cerrarDetalle()">
+    <div class="modal-panel modal-panel-wide glass-panel" (click)="$event.stopPropagation()">
+      <h2>Conquistadores asignados a "{{ especialidadDetalle?.nombre }}"</h2>
+      <p class="subtitle hint">
+        Inicio: {{ especialidadDetalle?.fecha_inicio || '—' }} · Entrega esperada: {{ especialidadDetalle?.fecha_entrega || '—' }}
+      </p>
+
+      <div class="detail-list">
+        @for (item of asignacionesDetalle(); track item.conquistador.id) {
+          <div class="detail-item">
+            <img [src]="item.conquistador.foto_url || 'https://api.dicebear.com/7.x/thumbs/svg?seed=' + item.conquistador.nombre" alt="Foto" class="detail-avatar">
+            <div class="detail-info">
+              <strong>{{ item.conquistador.nombre }}</strong>
+              <span class="subtitle">{{ item.conquistador.clase_nombre }}</span>
+              @if (item.asignacion.estado === 'Entregada') {
+                <span class="detail-dates">Entregada el: {{ item.asignacion.fecha_entrega_real }}</span>
+              }
+            </div>
+            <span class="badge" [class]="getBadgeClass(estadoDe(item.asignacion))">
+              {{ estadoDe(item.asignacion) }}
+            </span>
+            <button class="btn btn-secondary btn-sm" (click)="marcarEntregada(item.conquistador, item.asignacion)">
+              {{ item.asignacion.estado === 'Entregada' ? 'Revertir' : 'Marcar entregada' }}
+            </button>
+          </div>
+        } @empty {
+          <p class="subtitle">Todavía no hay conquistadores asignados a esta especialidad.</p>
+        }
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" (click)="cerrarDetalle()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+}

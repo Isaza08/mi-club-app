@@ -1,83 +1,156 @@
 <div class="page-container animate-fade-in">
-  <!-- Header de Cartilla -->
-  <header class="cartilla-header glass-panel">
-    <div class="header-left">
-      <img [src]="cartillaActual.logo_url" alt="Logo Clase" class="clase-logo">
-      <div class="cartilla-titles">
-        <p class="subtitle">Cartilla de {{ cartillaActual.clase_nombre }}</p>
-        <h1>{{ cartillaActual.conquistador }}</h1>
+  @if (cargando()) {
+    <p class="subtitle">Cargando...</p>
+  } @else if (!conquistador()) {
+    <header class="page-header">
+      <div class="header-titles">
+        <h1>Cartillas</h1>
+        <p class="subtitle">Elige un conquistador para ver y actualizar su cartilla</p>
       </div>
-    </div>
-    
-    <div class="header-right">
-      <div class="eval-card">
-        <span class="eval-label">Evaluación Final</span>
-        <span class="badge" [class]="getBadgeClass(cartillaActual.evaluacion_final.estado)">
-          {{ cartillaActual.evaluacion_final.estado }}
-        </span>
-      </div>
-    </div>
-  </header>
+    </header>
 
-  <div class="cartilla-layout">
-    <!-- Navegación lateral (Tabs de Secciones) -->
-    <aside class="cartilla-sidebar">
-      <div class="nav-group">
-        <h3 class="nav-group-title">📗 Clase Regular</h3>
-        @for (sec of cartillaActual.regular; track sec.titulo) {
-          <button class="section-tab" [class.active]="$first">
-            <div class="tab-content">
-              <span class="tab-title">{{ sec.titulo }}</span>
-              <span class="badge-dot" [class]="getBadgeClass(sec.estado_seccion)"></span>
-            </div>
-          </button>
-        }
-      </div>
-
-      <div class="nav-group mt-4">
-        <h3 class="nav-group-title">📙 Clase Avanzada</h3>
-        @for (sec of cartillaActual.avanzada; track sec.titulo) {
-          <button class="section-tab">
-            <div class="tab-content">
-              <span class="tab-title">{{ sec.titulo }}</span>
-              <span class="badge-dot" [class]="getBadgeClass(sec.estado_seccion)"></span>
-            </div>
-          </button>
-        }
-      </div>
-    </aside>
-
-    <!-- Contenido Principal de Tareas -->
-    <main class="cartilla-content glass-panel">
-      <!-- Muestra solo la primera sección como mock visual -->
-      <div class="section-header">
-        <h2>{{ cartillaActual.regular[0].titulo }}</h2>
-        <span class="badge" [class]="getBadgeClass(cartillaActual.regular[0].estado_seccion)">
-          {{ cartillaActual.regular[0].estado_seccion }}
-        </span>
-      </div>
-
-      <div class="tasks-list">
-        @for (tarea of cartillaActual.regular[0].tareas; track tarea.id) {
-          <div class="task-card" (click)="toggleEstado(tarea, cartillaActual.regular[0])">
-            <div class="task-info">
-              <div class="task-number">Req. {{ tarea.id }}</div>
-              <h4 class="task-title">{{ tarea.titulo }}</h4>
-            </div>
-            
-            <div class="task-actions">
-              @if (tarea.fecha_realizacion !== null) {
-                <input type="date" class="task-date-input" 
-                       [(ngModel)]="tarea.fecha_realizacion" 
-                       (click)="$event.stopPropagation()">
-              }
-              <span class="badge interactive" [class]="getBadgeClass(tarea.estado)">
-                {{ tarea.estado }}
-              </span>
-            </div>
+    <div class="picker-grid">
+      @for (c of conquistadores(); track c.id) {
+        <button class="picker-card glass-panel" (click)="irACartilla(c.id!)">
+          <img [src]="c.foto_url || 'https://api.dicebear.com/7.x/thumbs/svg?seed=' + c.nombre" alt="Foto" class="picker-avatar">
+          <div class="picker-info">
+            <strong>{{ c.nombre }}</strong>
+            <span class="subtitle">{{ c.clase_nombre }}</span>
           </div>
+          <div class="progress-wrapper">
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width]="getPorcentajeRegular(c) + '%'"></div>
+            </div>
+            <span class="progress-text">{{ getPorcentajeRegular(c) }}%</span>
+          </div>
+        </button>
+      } @empty {
+        <div class="glass-panel empty-panel">
+          <p>No hay conquistadores registrados todavía.</p>
+          <a routerLink="/conquistadores" class="btn btn-primary">Ir a Conquistadores</a>
+        </div>
+      }
+    </div>
+  } @else {
+    <!-- Header de Cartilla -->
+    <header class="cartilla-header glass-panel">
+      <div class="header-left">
+        <img [src]="conquistador()!.foto_url || 'https://api.dicebear.com/7.x/thumbs/svg?seed=' + conquistador()!.nombre" alt="Foto" class="clase-logo">
+        <div class="cartilla-titles">
+          <p class="subtitle">Cartilla de {{ conquistador()!.clase_nombre }}</p>
+          <h1>{{ conquistador()!.nombre }}</h1>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="eval-card">
+          <span class="eval-label">Estado</span>
+          <span class="badge" [class]="getBadgeClass(conquistador()!.estado_investidura)">
+            {{ conquistador()!.estado_investidura }}
+          </span>
+        </div>
+        <div class="eval-card">
+          <span class="eval-label">Avance Regular</span>
+          <span class="badge" [class]="getBadgeClass(porcentajeAvance('regular') === 100 ? 'Terminada' : 'En progreso')">
+            {{ porcentajeAvance('regular') }}%
+          </span>
+        </div>
+        <div class="eval-card">
+          <span class="eval-label">Avance Avanzada</span>
+          <span class="badge" [class]="getBadgeClass(porcentajeAvance('avanzada') === 100 ? 'Terminada' : 'En progreso')">
+            {{ porcentajeAvance('avanzada') }}%
+          </span>
+        </div>
+        @if (puedeMarcarInvestido()) {
+          <button class="btn btn-primary btn-sm" (click)="marcarInvestido()" [disabled]="guardando()">
+            🏅 Marcar como Investido
+          </button>
+        }
+        @if (guardando()) {
+          <span class="subtitle">Guardando...</span>
         }
       </div>
-    </main>
-  </div>
+    </header>
+
+    <div class="cartilla-layout">
+      <!-- Navegación lateral (Tabs de Secciones) -->
+      <aside class="cartilla-sidebar">
+        <div class="nav-group">
+          <h3 class="nav-group-title">📗 Clase Regular</h3>
+          @for (sec of secciones('regular'); track sec.titulo; let i = $index) {
+            <button class="section-tab" [class.active]="tipoActivo === 'regular' && indiceActivo === i" (click)="seleccionarSeccion('regular', i)">
+              <div class="tab-content">
+                <span class="tab-title">{{ sec.titulo }}</span>
+                <span class="badge-dot" [class]="getBadgeClass(sec.estado_seccion)"></span>
+              </div>
+            </button>
+          } @empty {
+            <p class="subtitle nav-empty">Sin secciones aún.</p>
+          }
+        </div>
+
+        <div class="nav-group mt-4">
+          <h3 class="nav-group-title">📙 Clase Avanzada</h3>
+          @for (sec of secciones('avanzada'); track sec.titulo; let i = $index) {
+            <button class="section-tab" [class.active]="tipoActivo === 'avanzada' && indiceActivo === i" (click)="seleccionarSeccion('avanzada', i)">
+              <div class="tab-content">
+                <span class="tab-title">{{ sec.titulo }}</span>
+                <span class="badge-dot" [class]="getBadgeClass(sec.estado_seccion)"></span>
+              </div>
+            </button>
+          } @empty {
+            <p class="subtitle nav-empty">Sin secciones aún.</p>
+          }
+        </div>
+
+        <div class="nav-group mt-4 add-section-form">
+          <input type="text" placeholder="Nueva sección..." [(ngModel)]="nuevaSeccionTitulo" name="nuevaSeccion">
+          <button class="btn btn-secondary btn-sm" (click)="agregarSeccion()">Agregar</button>
+        </div>
+      </aside>
+
+      <!-- Contenido Principal de Tareas -->
+      <main class="cartilla-content glass-panel">
+        @if (seccionActiva(); as sec) {
+          <div class="section-header">
+            <h2>{{ sec.titulo }}</h2>
+            <span class="badge" [class]="getBadgeClass(sec.estado_seccion)">
+              {{ sec.estado_seccion }}
+            </span>
+          </div>
+
+          <div class="tasks-list">
+            @for (pagina of sec.paginas; track pagina.numero_pagina) {
+              <div class="task-card" (click)="toggleEstado(pagina, sec)">
+                <div class="task-info">
+                  <h4 class="task-title">Página {{ pagina.numero_pagina }}</h4>
+                </div>
+
+                <div class="task-actions">
+                  @if (pagina.fecha_realizacion !== null) {
+                    <input type="date" class="task-date-input"
+                           [(ngModel)]="pagina.fecha_realizacion"
+                           (click)="$event.stopPropagation()"
+                           (change)="onFechaCambiada()">
+                  }
+                  <span class="badge interactive" [class]="getBadgeClass(pagina.estado)">
+                    {{ pagina.estado }}
+                  </span>
+                </div>
+              </div>
+            } @empty {
+              <p class="subtitle">Esta sección no tiene páginas todavía.</p>
+            }
+          </div>
+
+          <div class="add-page-form">
+            <input type="number" placeholder="Nº de página" [(ngModel)]="nuevaPaginaNumero" name="nuevaPagina">
+            <button class="btn btn-secondary btn-sm" (click)="agregarPagina()">Agregar página</button>
+          </div>
+        } @else {
+          <p class="subtitle">Selecciona o crea una sección para empezar a registrar el avance.</p>
+        }
+      </main>
+    </div>
+  }
 </div>

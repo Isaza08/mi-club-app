@@ -5,14 +5,11 @@
       @if (cargando()) {
         <span class="loading-text">Cargando datos...</span>
       }
-      @if (!cargando() && totalConquistadores === 0) {
-        <button class="btn btn-secondary" (click)="cargarDatosMock()">
-          <span class="icon">🌱</span> Cargar datos iniciales
+      @if (esAdmin) {
+        <button class="btn btn-primary" (click)="generarExcel()" [disabled]="totalConquistadores === 0">
+          <span class="icon">📦</span> Generar Pedido de Investidura
         </button>
       }
-      <button class="btn btn-primary" (click)="generarExcel()" [disabled]="totalConquistadores === 0">
-        <span class="icon">📦</span> Generar Pedido de Investidura
-      </button>
     </div>
   </header>
 
@@ -54,8 +51,8 @@
         <h3>Especialidades Completadas</h3>
         <span class="kpi-icon">🎖️</span>
       </div>
-      <div class="kpi-value">42</div>
-      <div class="kpi-trend">Este período</div>
+      <div class="kpi-value">{{ especialidadesEntregadasCount }}</div>
+      <div class="kpi-trend">Entregadas en total</div>
     </div>
   </div>
 
@@ -63,48 +60,32 @@
   <div class="charts-section">
     <div class="chart-card glass-panel">
       <h3>Termómetro de Investidura por Clase</h3>
+      <p class="subtitle">% de conquistadores Elegibles o Investidos en cada clase</p>
       <div class="placeholder-chart">
-        <!-- Bars -->
-        <div class="bar-group">
-          <span class="bar-label">Amigo</span>
-          <div class="bar-track"><div class="bar-fill" style="width: 80%"></div></div>
-        </div>
-        <div class="bar-group">
-          <span class="bar-label">Compañero</span>
-          <div class="bar-track"><div class="bar-fill" style="width: 65%"></div></div>
-        </div>
-        <div class="bar-group">
-          <span class="bar-label">Explorador</span>
-          <div class="bar-track"><div class="bar-fill" style="width: 40%"></div></div>
-        </div>
-        <div class="bar-group">
-          <span class="bar-label">Orientador</span>
-          <div class="bar-track"><div class="bar-fill" style="width: 25%"></div></div>
-        </div>
-        <div class="bar-group">
-          <span class="bar-label">Guía</span>
-          <div class="bar-track"><div class="bar-fill" style="width: 90%"></div></div>
-        </div>
+        @for (clase of clases; track clase) {
+          <div class="bar-group">
+            <span class="bar-label">{{ clase }}</span>
+            <div class="bar-track"><div class="bar-fill" [style.width]="porcentajePorClase(clase) + '%'"></div></div>
+            <span class="bar-value">{{ porcentajePorClase(clase) }}% ({{ totalPorClase(clase) }})</span>
+          </div>
+        }
       </div>
     </div>
 
     <div class="chart-card glass-panel">
       <h3>Avance Reciente</h3>
       <ul class="activity-list">
-        <li class="activity-item">
-          <div class="activity-avatar">MG</div>
-          <div class="activity-details">
-            <strong>Mateo Gómez</strong> terminó <span class="badge badge-done">Nudos y Amarres</span>
-            <span class="activity-time">Hace 2 horas</span>
-          </div>
-        </li>
-        <li class="activity-item">
-          <div class="activity-avatar">SL</div>
-          <div class="activity-details">
-            <strong>Sofía López</strong> cambió clase Amigo a <span class="badge badge-progress">En Progreso</span>
-            <span class="activity-time">Ayer</span>
-          </div>
-        </li>
+        @for (a of actividadReciente; track a.id) {
+          <li class="activity-item">
+            <div class="activity-avatar">{{ iniciales(a.conquistador_nombre) }}</div>
+            <div class="activity-details">
+              <strong>{{ a.conquistador_nombre }}</strong> {{ descripcionActividad(a) }}
+              <span class="activity-time">{{ tiempoRelativo(a.fecha) }}</span>
+            </div>
+          </li>
+        } @empty {
+          <p class="subtitle">Todavía no hay actividad registrada.</p>
+        }
       </ul>
     </div>
   </div>

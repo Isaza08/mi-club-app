@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone, inject } from '@angular/core';
 import { initializeApp, FirebaseApp } from 'firebase/app';
 import {
   getFirestore,
@@ -15,6 +15,13 @@ import {
   DocumentReference,
   DocumentData
 } from 'firebase/firestore';
+import {
+  getStorage,
+  FirebaseStorage,
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL
+} from 'firebase/storage';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 
@@ -22,12 +29,23 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class FirebaseService {
-  private app: FirebaseApp;
+  private ngZone = inject(NgZone);
+
+  public app: FirebaseApp;
   public db: Firestore;
+  public storage: FirebaseStorage;
 
   constructor() {
     this.app = initializeApp(environment.firebase);
     this.db = getFirestore(this.app);
+    this.storage = getStorage(this.app);
+  }
+
+  // ─── Storage ─────────────────────────────────────────────────────
+  async uploadFile(path: string, file: File): Promise<string> {
+    const ref = storageRef(this.storage, path);
+    await uploadBytes(ref, file);
+    return getDownloadURL(ref);
   }
 
   // ─── Observable sobre una colección (con idField) ────────────────
@@ -39,8 +57,11 @@ export class FirebaseService {
     return new Observable<T[]>(subscriber => {
       const unsub = onSnapshot(ref, snapshot => {
         const items = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as T));
-        subscriber.next(items);
-      }, err => subscriber.error(err));
+        this.ngZone.run(() => subscriber.next(items));
+      }, err => {
+        console.error('Error en consulta de Firestore:', err);
+        this.ngZone.run(() => subscriber.error(err));
+      });
       return () => unsub();
     });
   }
@@ -50,8 +71,8 @@ export class FirebaseService {
     const ref = doc(this.db, path);
     return new Observable<T>(subscriber => {
       const unsub = onSnapshot(ref, snapshot => {
-        subscriber.next({ id: snapshot.id, ...snapshot.data() } as T);
-      }, err => subscriber.error(err));
+        this.ngZone.run(() => subscriber.next({ id: snapshot.id, ...snapshot.data() } as T));
+      }, err => this.ngZone.run(() => subscriber.error(err)));
       return () => unsub();
     });
   }

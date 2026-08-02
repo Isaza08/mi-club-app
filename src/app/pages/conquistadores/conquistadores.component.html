@@ -5,10 +5,13 @@
       <p class="subtitle">Gestión del club y avance progresivo</p>
     </div>
     <div class="header-actions">
-      <button class="btn btn-secondary">
-        <span class="icon">🔍</span> Buscar
-      </button>
-      <button class="btn btn-primary">
+      <input
+        class="search-input"
+        type="text"
+        placeholder="🔍 Buscar por nombre..."
+        [(ngModel)]="filtro"
+      />
+      <button class="btn btn-primary" (click)="abrirCrear()">
         <span class="icon">➕</span> Nuevo Conquistador
       </button>
     </div>
@@ -19,32 +22,44 @@
       <thead>
         <tr>
           <th>Conquistador</th>
-          <th>ID</th>
-          <th>Unidad</th>
+          <th>Consejero</th>
           <th>Clase Actual</th>
           <th>Avance Regular</th>
+          <th>Avance Avanzada</th>
           <th>Estado</th>
           <th>Acciones</th>
         </tr>
       </thead>
       <tbody>
-        @for (c of conquistadores; track c.id) {
+        @if (cargando()) {
+          <tr>
+            <td colspan="7" class="empty-state">Cargando conquistadores...</td>
+          </tr>
+        }
+        @for (c of conquistadoresFiltrados(); track c.id) {
           <tr class="table-row">
             <td>
               <div class="user-cell">
-                <img [src]="c.foto_url" alt="Foto perfil" class="cell-avatar">
-                <span class="cell-name">{{ c.nombre_completo }}</span>
+                <img [src]="c.foto_url || fotoPorDefecto" alt="Foto perfil" class="cell-avatar">
+                <span class="cell-name">{{ c.nombre }}</span>
               </div>
             </td>
-            <td class="cell-id">{{ c.id }}</td>
-            <td><span class="unit-badge">{{ c.unidad }}</span></td>
-            <td><strong>{{ c.clase_actual }}</strong></td>
+            <td><span class="unit-badge">{{ c.consejero_nombre }}</span></td>
+            <td><strong>{{ c.clase_nombre }}</strong></td>
             <td>
               <div class="progress-wrapper">
                 <div class="progress-bar">
-                  <div class="progress-fill" [style.width]="c.porcentaje_regular + '%'"></div>
+                  <div class="progress-fill" [style.width]="getPorcentajeRegular(c) + '%'"></div>
                 </div>
-                <span class="progress-text">{{ c.porcentaje_regular }}%</span>
+                <span class="progress-text">{{ getPorcentajeRegular(c) }}%</span>
+              </div>
+            </td>
+            <td>
+              <div class="progress-wrapper">
+                <div class="progress-bar">
+                  <div class="progress-fill" [style.width]="getPorcentajeAvanzada(c) + '%'"></div>
+                </div>
+                <span class="progress-text">{{ getPorcentajeAvanzada(c) }}%</span>
               </div>
             </td>
             <td>
@@ -53,12 +68,80 @@
               </span>
             </td>
             <td>
-              <button class="btn-icon" title="Ver Cartilla">📘</button>
-              <button class="btn-icon" title="Editar">✏️</button>
+              <a class="btn-icon" title="Ver Cartilla" [routerLink]="['/cartillas', c.id]">📘</a>
+              <button class="btn-icon" title="Editar" (click)="abrirEditar(c)">✏️</button>
+              <button class="btn-icon" title="Eliminar" (click)="eliminar(c.id!)">🗑️</button>
             </td>
           </tr>
+        } @empty {
+          @if (!cargando()) {
+            <tr>
+              <td colspan="7" class="empty-state">No hay conquistadores registrados todavía.</td>
+            </tr>
+          }
         }
       </tbody>
     </table>
   </div>
 </div>
+
+@if (mostrarModal()) {
+  <div class="modal-overlay" (click)="cerrarModal()">
+    <div class="modal-panel glass-panel" (click)="$event.stopPropagation()">
+      <h2>{{ editandoId() ? 'Editar' : 'Nuevo' }} Conquistador</h2>
+      <form (ngSubmit)="guardar()">
+        <div class="form-group">
+          <label>Nombre completo</label>
+          <input type="text" [(ngModel)]="formData.nombre" name="nombre" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Edad</label>
+            <input type="number" [(ngModel)]="formData.edad" name="edad" required min="10" max="16">
+          </div>
+          <div class="form-group">
+            <label>Clase</label>
+            <select [(ngModel)]="formData.clase_nombre" name="clase_nombre" required>
+              <option value="Amigo">Amigo</option>
+              <option value="Compañero">Compañero</option>
+              <option value="Explorador">Explorador</option>
+              <option value="Orientador">Orientador</option>
+              <option value="Viajero">Viajero</option>
+              <option value="Guía">Guía</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Consejero</label>
+          <select
+            [ngModel]="formData.consejero_uid"
+            (ngModelChange)="onConsejeroSeleccionado($event)"
+            name="consejero_uid"
+            required
+          >
+            <option value="" disabled>Selecciona un consejero</option>
+            @for (con of consejeros; track con.id) {
+              <option [value]="con.id">{{ con.nombre }}</option>
+            }
+          </select>
+          @if (consejeros.length === 0) {
+            <span class="subtitle">No hay consejeros registrados todavía. Créalos en Firebase Console.</span>
+          }
+        </div>
+        <div class="form-group">
+          <label>Foto de perfil</label>
+          <input type="file" accept="image/*" (change)="onFotoSeleccionada($event)">
+          @if (subiendoFoto()) {
+            <span class="subtitle">Subiendo foto...</span>
+          }
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="guardando() || subiendoFoto()">
+            {{ guardando() ? 'Guardando...' : 'Guardar' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

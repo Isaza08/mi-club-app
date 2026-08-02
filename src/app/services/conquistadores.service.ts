@@ -9,14 +9,38 @@ export interface Conquistador {
   clase_id: string;
   clase_nombre: string;
   edad: number;
-  consejero: string;
+  consejero_uid: string;
+  consejero_nombre: string;
   estado_investidura: 'Elegible' | 'En Progreso' | 'Riesgo' | 'Investido';
   foto_url?: string;
   cartilla?: {
     regular: SeccionCartilla[];
     avanzada: SeccionCartilla[];
   };
-  especialidades_ids?: string[];
+  especialidades?: EspecialidadAsignada[];
+}
+
+export interface EspecialidadAsignada {
+  especialidad_id: string;
+  estado: 'En Progreso' | 'Entregada';
+  // Se llena solo al marcar la especialidad como Entregada (fecha real de entrega).
+  fecha_entrega_real: string | null;
+}
+
+export type EstadoEspecialidad = 'En Progreso' | 'Entregada' | 'Sin Entregar';
+
+// "Sin Entregar" solo aplica si ya pasó la fecha meta de entrega de la especialidad
+// (configurada en el catálogo) y el conquistador no la ha marcado como entregada.
+export function calcularEstadoEspecialidad(
+  asignacion: EspecialidadAsignada,
+  fechaEntregaEspecialidad: string | null | undefined
+): EstadoEspecialidad {
+  if (asignacion.estado === 'Entregada') return 'Entregada';
+
+  const hoy = new Date().toISOString().split('T')[0];
+  if (fechaEntregaEspecialidad && fechaEntregaEspecialidad < hoy) return 'Sin Entregar';
+
+  return 'En Progreso';
 }
 
 export interface SeccionCartilla {
@@ -60,88 +84,18 @@ export class ConquistadoresService {
     await this.fbService.deleteDocument(`${this.COLLECTION}/${id}`);
   }
 
-  // Carga datos iniciales de prueba en Firestore (sólo ejecutar una vez)
-  async seedDatosMock(): Promise<void> {
-    const mocks: Omit<Conquistador, 'id'>[] = [
-      {
-        nombre: 'Mateo Gómez',
-        clase_id: 'companero',
-        clase_nombre: 'Compañero',
-        edad: 13,
-        consejero: 'Peniel Chacón',
-        estado_investidura: 'Elegible',
-        cartilla: {
-          regular: [
-            {
-              titulo: 'I. Generalidades',
-              estado_seccion: 'En progreso',
-              paginas: [
-                { numero_pagina: 4, estado: 'Terminada', fecha_realizacion: '2026-05-12' },
-                { numero_pagina: 5, estado: 'En progreso', fecha_realizacion: null },
-                { numero_pagina: 6, estado: 'Por hacer', fecha_realizacion: null }
-              ]
-            }
-          ],
-          avanzada: [
-            {
-              titulo: 'Sección Avanzada',
-              estado_seccion: 'Terminada',
-              paginas: [
-                { numero_pagina: 22, estado: 'Terminada', fecha_realizacion: '2026-06-01' }
-              ]
-            }
-          ]
-        },
-        especialidades_ids: ['ESP-001', 'ESP-002']
-      },
-      {
-        nombre: 'Sofía López',
-        clase_id: 'amigo',
-        clase_nombre: 'Amigo',
-        edad: 11,
-        consejero: 'Peniel Chacón',
-        estado_investidura: 'Elegible',
-        cartilla: {
-          regular: [
-            {
-              titulo: 'I. Generalidades',
-              estado_seccion: 'En progreso',
-              paginas: [
-                { numero_pagina: 1, estado: 'Terminada', fecha_realizacion: '2026-04-10' },
-                { numero_pagina: 2, estado: 'Por hacer', fecha_realizacion: null }
-              ]
-            }
-          ],
-          avanzada: []
-        },
-        especialidades_ids: ['ESP-003']
-      },
-      {
-        nombre: 'David Rojas',
-        clase_id: 'explorador',
-        clase_nombre: 'Explorador',
-        edad: 14,
-        consejero: 'Peniel Chacón',
-        estado_investidura: 'Riesgo',
-        cartilla: {
-          regular: [
-            {
-              titulo: 'I. Generalidades',
-              estado_seccion: 'Por hacer',
-              paginas: [
-                { numero_pagina: 10, estado: 'Por hacer', fecha_realizacion: null }
-              ]
-            }
-          ],
-          avanzada: []
-        },
-        especialidades_ids: []
-      }
-    ];
+  // El estado se deriva del avance real de la cartilla regular, salvo que ya esté Investido:
+  // ese estado solo se asigna manualmente al confirmar la entrega de la investidura.
+  calcularEstadoInvestidura(
+    cartilla: Conquistador['cartilla'],
+    estadoActual: Conquistador['estado_investidura']
+  ): Conquistador['estado_investidura'] {
+    if (estadoActual === 'Investido') return 'Investido';
 
-    for (const m of mocks) {
-      await this.create(m);
+    const paginas = cartilla?.regular?.flatMap(s => s.paginas) ?? [];
+    if (paginas.length > 0 && paginas.every(p => p.estado === 'Terminada')) {
+      return 'Elegible';
     }
-    console.log('✅ Datos semilla cargados en Firestore.');
+    return 'En Progreso';
   }
 }

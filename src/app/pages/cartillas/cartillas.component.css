@@ -230,3 +230,131 @@
 .badge.interactive:hover {
   opacity: 0.8;
 }
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.empty-panel {
+  padding: 48px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  grid-column: 1 / -1;
+}
+
+.page-header {
+  margin-bottom: 8px;
+}
+
+.header-titles h1 {
+  font-size: 2rem;
+  margin-bottom: 4px;
+}
+
+.picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.picker-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 20px;
+  text-align: left;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  color: var(--text-primary);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.picker-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  .picker-card:hover {
+    box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+  }
+}
+
+.picker-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+}
+
+.picker-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.picker-card .progress-wrapper {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.picker-card .progress-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--status-pending);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.picker-card .progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--secondary), var(--primary));
+  border-radius: var(--radius-full);
+}
+
+.picker-card .progress-text {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  min-width: 32px;
+}
+
+.nav-empty {
+  padding-left: 12px;
+  font-size: 0.85rem;
+}
+
+.add-section-form,
+.add-page-form {
+  display: flex;
+  gap: 8px;
+}
+
+.add-page-form {
+  margin-top: 8px;
+}
+
+.add-section-form input,
+.add-page-form input {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  min-width: 0;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}

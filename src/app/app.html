@@ -1,35 +1,45 @@
-<div class="dashboard-layout animate-fade-in">
-  <!-- Sidebar -->
-  <aside class="sidebar glass-panel">
-    <div class="logo-area">
-      <div class="logo-icon">⛺</div>
-      <h2>Mi Club App</h2>
-    </div>
-    <nav class="nav-menu">
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
-        <span class="icon">📊</span> Dashboard
-      </a>
-      <a routerLink="/conquistadores" routerLinkActive="active" class="nav-item">
-        <span class="icon">👥</span> Conquistadores
-      </a>
-      <a routerLink="/cartillas" routerLinkActive="active" class="nav-item">
-        <span class="icon">📗</span> Cartillas
-      </a>
-      <a routerLink="/especialidades" routerLinkActive="active" class="nav-item">
-        <span class="icon">🎖️</span> Especialidades
-      </a>
-    </nav>
-    <div class="user-profile">
-      <div class="avatar">DG</div>
-      <div class="user-info">
-        <span class="name">Director General</span>
-        <span class="role">Admin</span>
+@if (enLogin()) {
+  <router-outlet></router-outlet>
+} @else {
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar glass-panel">
+      <div class="logo-area">
+        <div class="logo-icon">⛺</div>
+        <h2>Mi Club App</h2>
       </div>
-    </div>
-  </aside>
+      <nav class="nav-menu">
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+          <span class="icon">📊</span> Dashboard
+        </a>
+        @if (perfil()?.rol === 'Administrador') {
+          <a routerLink="/conquistadores" routerLinkActive="active" class="nav-item">
+            <span class="icon">👥</span> Conquistadores
+          </a>
+        }
+        <a routerLink="/mis-conquistadores" routerLinkActive="active" class="nav-item">
+          <span class="icon">🧑‍🏫</span> Mis Conquistadores
+        </a>
+        <a routerLink="/cartillas" routerLinkActive="active" class="nav-item">
+          <span class="icon">📗</span> Cartillas
+        </a>
+        <a routerLink="/especialidades" routerLinkActive="active" class="nav-item">
+          <span class="icon">🎖️</span> Especialidades
+        </a>
+      </nav>
+      <div class="user-profile">
+        <div class="avatar">{{ (perfil()?.nombre || '?').charAt(0).toUpperCase() }}</div>
+        <div class="user-info">
+          <span class="name">{{ perfil()?.nombre || 'Invitado' }}</span>
+          <span class="role">{{ perfil()?.rol || '' }}</span>
+        </div>
+        <button class="logout-btn" title="Cerrar sesión" (click)="logout()">🚪</button>
+      </div>
+    </aside>
 
-  <!-- Main Content -->
-  <main class="main-content">
-    <router-outlet></router-outlet>
-  </main>
-</div>
+    <!-- Main Content -->
+    <main class="main-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+}

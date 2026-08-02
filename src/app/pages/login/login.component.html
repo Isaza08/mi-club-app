@@ -1,0 +1,28 @@
+<div class="login-container animate-fade-in">
+  <div class="login-panel glass-panel">
+    <div class="logo-area">
+      <div class="logo-icon">⛺</div>
+      <h2>Mi Club App</h2>
+    </div>
+    <p class="subtitle">Inicia sesión para gestionar tu club</p>
+
+    <form (ngSubmit)="ingresar()">
+      <div class="form-group">
+        <label>Correo</label>
+        <input type="email" [(ngModel)]="email" name="email" required autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" [(ngModel)]="password" name="password" required autocomplete="current-password">
+      </div>
+
+      @if (error()) {
+        <p class="error-text">{{ error() }}</p>
+      }
+
+      <button type="submit" class="btn btn-primary btn-full" [disabled]="cargando()">
+        {{ cargando() ? 'Ingresando...' : 'Ingresar' }}
+      </button>
+    </form>
+  </div>
+</div>

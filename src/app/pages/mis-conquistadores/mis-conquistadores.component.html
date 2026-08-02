@@ -1,0 +1,42 @@
+<div class="page-container animate-fade-in">
+  <header class="page-header">
+    <div class="header-titles">
+      <h1>Mis Conquistadores</h1>
+      <p class="subtitle">
+        @if (nombreConsejero()) {
+          Conquistadores asignados a {{ nombreConsejero() }}
+        } @else {
+          Conquistadores asignados a ti
+        }
+      </p>
+    </div>
+  </header>
+
+  <div class="picker-grid">
+    @if (cargando()) {
+      <p class="subtitle">Cargando...</p>
+    }
+    @for (c of conquistadores(); track c.id) {
+      <a class="picker-card glass-panel" [routerLink]="['/cartillas', c.id]">
+        <img [src]="c.foto_url || fotoPorDefecto" alt="Foto" class="picker-avatar">
+        <div class="picker-info">
+          <strong>{{ c.nombre }}</strong>
+          <span class="subtitle">{{ c.clase_nombre }}</span>
+        </div>
+        <span class="badge" [class]="getBadgeClass(c.estado_investidura)">{{ c.estado_investidura }}</span>
+        <div class="progress-wrapper">
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width]="getPorcentajeRegular(c) + '%'"></div>
+          </div>
+          <span class="progress-text">{{ getPorcentajeRegular(c) }}%</span>
+        </div>
+      </a>
+    } @empty {
+      @if (!cargando()) {
+        <div class="glass-panel empty-panel">
+          <p>Todavía no tienes conquistadores asignados.</p>
+        </div>
+      }
+    }
+  </div>
+</div>

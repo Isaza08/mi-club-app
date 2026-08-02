@@ -1,0 +1,10 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Por ahora: acceso abierto para desarrollo.
+    // TODO: restringir por autenticación cuando se valide el flujo completo.
+    match /{allPaths=**} {
+      allow read, write: if true;
+    }
+  }
+}
