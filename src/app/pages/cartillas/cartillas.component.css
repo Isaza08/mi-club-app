@@ -333,28 +333,6 @@
   font-size: 0.85rem;
 }
 
-.add-section-form,
-.add-page-form {
-  display: flex;
-  gap: 8px;
-}
-
-.add-page-form {
-  margin-top: 8px;
-}
-
-.add-section-form input,
-.add-page-form input {
-  flex: 1;
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--glass-border);
-  background: var(--bg-card);
-  color: var(--text-primary);
-  font-size: 0.85rem;
-  min-width: 0;
-}
-
 .btn-sm {
   padding: 6px 12px;
   font-size: 0.85rem;
@@ -429,10 +407,5 @@
   .task-actions {
     width: 100%;
     justify-content: space-between;
-  }
-
-  .add-section-form,
-  .add-page-form {
-    flex-direction: column;
   }
 }

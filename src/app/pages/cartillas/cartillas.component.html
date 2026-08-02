@@ -111,11 +111,6 @@
             <p class="subtitle nav-empty">Sin secciones aún.</p>
           }
         </div>
-
-        <div class="nav-group mt-4 add-section-form">
-          <input type="text" placeholder="Nueva sección..." [(ngModel)]="nuevaSeccionTitulo" name="nuevaSeccion">
-          <button class="btn btn-secondary btn-sm" (click)="agregarSeccion()">Agregar</button>
-        </div>
       </aside>
 
       <!-- Contenido Principal de Tareas -->
@@ -151,11 +146,6 @@
             } @empty {
               <p class="subtitle">Esta sección no tiene páginas todavía.</p>
             }
-          </div>
-
-          <div class="add-page-form">
-            <input type="number" placeholder="Nº de página" [(ngModel)]="nuevaPaginaNumero" name="nuevaPagina">
-            <button class="btn btn-secondary btn-sm" (click)="agregarPagina()">Agregar página</button>
           </div>
         } @else {
           <p class="subtitle">Selecciona o crea una sección para empezar a registrar el avance.</p>

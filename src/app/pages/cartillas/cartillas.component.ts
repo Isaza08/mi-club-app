@@ -41,9 +41,6 @@ export class CartillasComponent implements OnInit {
   tipoActivo: Tipo = 'regular';
   indiceActivo = 0;
 
-  nuevaSeccionTitulo = '';
-  nuevaPaginaNumero: number | null = null;
-
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
 
@@ -153,43 +150,6 @@ export class CartillasComponent implements OnInit {
   }
 
   async onFechaCambiada() {
-    await this.persistirCartilla();
-  }
-
-  async agregarSeccion() {
-    const titulo = this.nuevaSeccionTitulo.trim();
-    if (!titulo) return;
-
-    const c = this.conquistador();
-    if (!c) return;
-
-    const nuevaSeccion: SeccionCartilla = { titulo, estado_seccion: 'Por hacer', paginas: [] };
-    const cartilla = c.cartilla ?? { regular: [], avanzada: [] };
-    if (this.tipoActivo === 'regular') {
-      cartilla.regular = [...cartilla.regular, nuevaSeccion];
-      this.indiceActivo = cartilla.regular.length - 1;
-    } else {
-      cartilla.avanzada = [...cartilla.avanzada, nuevaSeccion];
-      this.indiceActivo = cartilla.avanzada.length - 1;
-    }
-
-    this.conquistador.set({ ...c, cartilla });
-    this.nuevaSeccionTitulo = '';
-    await this.persistirCartilla();
-  }
-
-  async agregarPagina() {
-    const seccion = this.seccionActiva();
-    if (!seccion || this.nuevaPaginaNumero === null) return;
-
-    const nuevaPagina: Pagina = {
-      numero_pagina: this.nuevaPaginaNumero,
-      estado: 'Por hacer',
-      fecha_realizacion: null
-    };
-    seccion.paginas = [...seccion.paginas, nuevaPagina];
-    this.actualizarEstadoSeccion(seccion);
-    this.nuevaPaginaNumero = null;
     await this.persistirCartilla();
   }
 
