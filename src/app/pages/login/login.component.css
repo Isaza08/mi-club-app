@@ -17,22 +17,30 @@
 
 .logo-area {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 4px;
+  text-align: center;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .logo-icon {
-  font-size: 2rem;
+  width: auto;
+  height: 100px;
+  object-fit: contain;
+  flex-shrink: 0;
+  margin-bottom: 4px;
 }
 
 .logo-area h2 {
   margin: 0;
+  font-size: 1.5rem;
 }
 
 .subtitle {
   color: var(--text-secondary);
-  margin-bottom: 24px;
+  margin: 0;
+  font-size: 0.9rem;
 }
 
 .form-group {
@@ -67,4 +75,18 @@
   width: 100%;
   justify-content: center;
   margin-top: 8px;
+}
+
+@media (max-width: 480px) {
+  .login-container {
+    padding: 16px;
+  }
+
+  .login-panel {
+    padding: 28px 20px;
+  }
+
+  .logo-icon {
+    height: 72px;
+  }
 }

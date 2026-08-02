@@ -2,29 +2,29 @@
   <router-outlet></router-outlet>
 } @else {
   <div class="dashboard-layout">
-    <!-- Sidebar -->
+    <!-- Sidebar (desktop) -->
     <aside class="sidebar glass-panel">
       <div class="logo-area">
-        <div class="logo-icon">⛺</div>
-        <h2>Mi Club App</h2>
+        <img src="logo-orion.png" alt="Logo Club Orión" class="logo-icon">
+        <h2>Club Orión</h2>
       </div>
       <nav class="nav-menu">
         <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
-          <span class="icon">📊</span> Dashboard
+          <span class="icon">📊</span><span class="nav-label">Dashboard</span>
         </a>
         @if (perfil()?.rol === 'Administrador') {
           <a routerLink="/conquistadores" routerLinkActive="active" class="nav-item">
-            <span class="icon">👥</span> Conquistadores
+            <span class="icon">👥</span><span class="nav-label">Conquistadores</span>
           </a>
         }
         <a routerLink="/mis-conquistadores" routerLinkActive="active" class="nav-item">
-          <span class="icon">🧑‍🏫</span> Mis Conquistadores
+          <span class="icon">🧑‍🏫</span><span class="nav-label">Mis Conquistadores</span>
         </a>
         <a routerLink="/cartillas" routerLinkActive="active" class="nav-item">
-          <span class="icon">📗</span> Cartillas
+          <span class="icon">📗</span><span class="nav-label">Cartillas</span>
         </a>
         <a routerLink="/especialidades" routerLinkActive="active" class="nav-item">
-          <span class="icon">🎖️</span> Especialidades
+          <span class="icon">🎖️</span><span class="nav-label">Especialidades</span>
         </a>
       </nav>
       <div class="user-profile">
@@ -37,9 +37,40 @@
       </div>
     </aside>
 
+    <!-- Top bar (mobile) -->
+    <header class="mobile-topbar glass-panel">
+      <img src="logo-orion.png" alt="Logo Club Orión" class="mobile-logo">
+      <h2>Club Orión</h2>
+      <div class="mobile-user">
+        <div class="avatar">{{ (perfil()?.nombre || '?').charAt(0).toUpperCase() }}</div>
+        <button class="logout-btn" title="Cerrar sesión" (click)="logout()">🚪</button>
+      </div>
+    </header>
+
     <!-- Main Content -->
     <main class="main-content">
       <router-outlet></router-outlet>
     </main>
+
+    <!-- Bottom tab bar (mobile) -->
+    <nav class="mobile-tabbar glass-panel">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="tab-item">
+        <span class="icon">📊</span><span class="tab-label">Dashboard</span>
+      </a>
+      @if (perfil()?.rol === 'Administrador') {
+        <a routerLink="/conquistadores" routerLinkActive="active" class="tab-item">
+          <span class="icon">👥</span><span class="tab-label">Conquist.</span>
+        </a>
+      }
+      <a routerLink="/mis-conquistadores" routerLinkActive="active" class="tab-item">
+        <span class="icon">🧑‍🏫</span><span class="tab-label">Mis Con.</span>
+      </a>
+      <a routerLink="/cartillas" routerLinkActive="active" class="tab-item">
+        <span class="icon">📗</span><span class="tab-label">Cartillas</span>
+      </a>
+      <a routerLink="/especialidades" routerLinkActive="active" class="tab-item">
+        <span class="icon">🎖️</span><span class="tab-label">Especial.</span>
+      </a>
+    </nav>
   </div>
 }

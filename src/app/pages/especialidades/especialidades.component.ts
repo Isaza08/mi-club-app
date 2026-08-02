@@ -13,6 +13,18 @@ import { ActividadService } from '../../services/actividad.service';
 import { AuthService, PerfilUsuario } from '../../services/auth.service';
 import { combineLatest } from 'rxjs';
 
+const CATEGORIAS = [
+  'ADRA',
+  'Artes y habilidades manuales',
+  'Actividades agrícolas',
+  'Actividades misioneras y comunitarias',
+  'Actividades profesionales',
+  'Actividades recreativas',
+  'Ciencia y salud',
+  'Estudio de la naturaleza',
+  'Habilidades domésticas'
+];
+
 @Component({
   selector: 'app-especialidades',
   standalone: true,
@@ -33,6 +45,7 @@ export class EspecialidadesComponent implements OnInit, OnDestroy {
   cargando = signal(true);
 
   readonly logoPorDefecto = 'https://api.dicebear.com/7.x/shapes/svg?seed=especialidad';
+  readonly categorias = CATEGORIAS;
 
   mostrarModal = signal(false);
   editandoId = signal<string | null>(null);

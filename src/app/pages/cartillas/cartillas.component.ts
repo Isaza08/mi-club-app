@@ -8,6 +8,8 @@ import {
   Pagina
 } from '../../services/conquistadores.service';
 import { ActividadService } from '../../services/actividad.service';
+import { AuthService, PerfilUsuario } from '../../services/auth.service';
+import { combineLatest } from 'rxjs';
 
 type Tipo = 'regular' | 'avanzada';
 
@@ -23,11 +25,18 @@ export class CartillasComponent implements OnInit {
   private router = inject(Router);
   private conquistadoresService = inject(ConquistadoresService);
   private actividadService = inject(ActividadService);
+  private authService = inject(AuthService);
 
   conquistador = signal<Conquistador | null>(null);
   conquistadores = signal<Conquistador[]>([]);
   cargando = signal(true);
   guardando = signal(false);
+  noAutorizado = signal(false);
+  perfil: PerfilUsuario | null = null;
+
+  get esAdmin(): boolean {
+    return this.perfil?.rol === 'Administrador';
+  }
 
   tipoActivo: Tipo = 'regular';
   indiceActivo = 0;
@@ -37,14 +46,31 @@ export class CartillasComponent implements OnInit {
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
+
     if (!id) {
-      this.conquistadoresService.getAll().subscribe(data => {
-        this.conquistadores.set(data);
+      combineLatest([
+        this.authService.perfil$,
+        this.conquistadoresService.getAll()
+      ]).subscribe(([perfil, data]) => {
+        this.perfil = perfil ?? null;
+        const esAdmin = this.perfil?.rol === 'Administrador';
+        this.conquistadores.set(esAdmin ? data : data.filter(c => c.consejero_uid === this.perfil?.uid));
         this.cargando.set(false);
       });
       return;
     }
-    this.conquistadoresService.getById(id).subscribe(data => {
+
+    combineLatest([
+      this.authService.perfil$,
+      this.conquistadoresService.getById(id)
+    ]).subscribe(([perfil, data]) => {
+      this.perfil = perfil ?? null;
+      const esAdmin = this.perfil?.rol === 'Administrador';
+      if (!esAdmin && data.consejero_uid !== this.perfil?.uid) {
+        this.noAutorizado.set(true);
+        this.cargando.set(false);
+        return;
+      }
       this.conquistador.set(data);
       this.cargando.set(false);
     });

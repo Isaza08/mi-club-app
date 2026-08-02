@@ -17,6 +17,25 @@
     </div>
   </header>
 
+  <div class="class-filters">
+    <button
+      class="class-chip"
+      [class.active]="claseFiltro === null"
+      (click)="filtrarPorClase(null)"
+    >
+      Todas
+    </button>
+    @for (clase of clases; track clase) {
+      <button
+        class="class-chip"
+        [class.active]="claseFiltro === clase"
+        (click)="filtrarPorClase(clase)"
+      >
+        {{ clase }}
+      </button>
+    }
+  </div>
+
   <div class="glass-panel table-container">
     <table class="data-table">
       <thead>
@@ -38,15 +57,15 @@
         }
         @for (c of conquistadoresFiltrados(); track c.id) {
           <tr class="table-row">
-            <td>
+            <td data-label="Conquistador">
               <div class="user-cell">
                 <img [src]="c.foto_url || fotoPorDefecto" alt="Foto perfil" class="cell-avatar">
                 <span class="cell-name">{{ c.nombre }}</span>
               </div>
             </td>
-            <td><span class="unit-badge">{{ c.consejero_nombre }}</span></td>
-            <td><strong>{{ c.clase_nombre }}</strong></td>
-            <td>
+            <td data-label="Consejero"><span class="unit-badge">{{ c.consejero_nombre }}</span></td>
+            <td data-label="Clase Actual"><strong>{{ c.clase_nombre }}</strong></td>
+            <td data-label="Avance Regular">
               <div class="progress-wrapper">
                 <div class="progress-bar">
                   <div class="progress-fill" [style.width]="getPorcentajeRegular(c) + '%'"></div>
@@ -54,7 +73,7 @@
                 <span class="progress-text">{{ getPorcentajeRegular(c) }}%</span>
               </div>
             </td>
-            <td>
+            <td data-label="Avance Avanzada">
               <div class="progress-wrapper">
                 <div class="progress-bar">
                   <div class="progress-fill" [style.width]="getPorcentajeAvanzada(c) + '%'"></div>
@@ -62,12 +81,12 @@
                 <span class="progress-text">{{ getPorcentajeAvanzada(c) }}%</span>
               </div>
             </td>
-            <td>
+            <td data-label="Estado">
               <span class="badge" [class]="getBadgeClass(c.estado_investidura)">
                 {{ c.estado_investidura }}
               </span>
             </td>
-            <td>
+            <td data-label="Acciones" class="actions-cell">
               <a class="btn-icon" title="Ver Cartilla" [routerLink]="['/cartillas', c.id]">📘</a>
               <button class="btn-icon" title="Editar" (click)="abrirEditar(c)">✏️</button>
               <button class="btn-icon" title="Eliminar" (click)="eliminar(c.id!)">🗑️</button>

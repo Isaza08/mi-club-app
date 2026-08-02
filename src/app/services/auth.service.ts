@@ -8,7 +8,8 @@ import {
   User
 } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { FirebaseService } from './firebase.service';
 
 export type Rol = 'Administrador' | 'Consejero';
@@ -48,6 +49,9 @@ export class AuthService {
 
   async login(email: string, password: string): Promise<void> {
     await signInWithEmailAndPassword(this.auth, email, password);
+    // Espera a que onAuthStateChanged termine de cargar el perfil desde Firestore
+    // antes de continuar, para que el guard de rutas no lea el estado anterior (null).
+    await firstValueFrom(this.perfil$.pipe(filter(perfil => !!perfil)));
   }
 
   async logout(): Promise<void> {

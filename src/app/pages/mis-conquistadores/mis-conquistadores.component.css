@@ -100,3 +100,14 @@
   gap: 16px;
   grid-column: 1 / -1;
 }
+
+@media (max-width: 768px) {
+  .page-container {
+    padding: 20px 16px;
+    gap: 16px;
+  }
+
+  .picker-grid {
+    grid-template-columns: 1fr;
+  }
+}

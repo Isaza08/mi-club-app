@@ -5,8 +5,11 @@ import { UsuariosService, Usuario } from '../../services/usuarios.service';
 import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { crearCartillaInicial } from '../../data/cartillas-plantillas';
 
 type ConquistadorForm = Omit<Conquistador, 'id' | 'clase_id' | 'cartilla' | 'especialidades' | 'estado_investidura'>;
+
+const CLASES = ['Amigo', 'Compañero', 'Explorador', 'Orientador', 'Viajero', 'Guía'];
 
 @Component({
   selector: 'app-conquistadores',
@@ -23,9 +26,11 @@ export class ConquistadoresComponent implements OnInit, OnDestroy {
   conquistadores: Conquistador[] = [];
   consejeros: Usuario[] = [];
   filtro = '';
+  claseFiltro: string | null = null;
   cargando = signal(true);
 
   readonly fotoPorDefecto = 'https://api.dicebear.com/7.x/thumbs/svg?seed=conquistador';
+  readonly clases = CLASES;
 
   mostrarModal = signal(false);
   editandoId = signal<string | null>(null);
@@ -55,8 +60,13 @@ export class ConquistadoresComponent implements OnInit, OnDestroy {
 
   conquistadoresFiltrados(): Conquistador[] {
     const termino = this.filtro.trim().toLowerCase();
-    if (!termino) return this.conquistadores;
-    return this.conquistadores.filter(c => c.nombre.toLowerCase().includes(termino));
+    return this.conquistadores
+      .filter(c => !this.claseFiltro || c.clase_nombre === this.claseFiltro)
+      .filter(c => !termino || c.nombre.toLowerCase().includes(termino));
+  }
+
+  filtrarPorClase(clase: string | null) {
+    this.claseFiltro = clase;
   }
 
   getBadgeClass(estado: string): string {
@@ -151,7 +161,7 @@ export class ConquistadoresComponent implements OnInit, OnDestroy {
           clase_id: claseId,
           ...(this.fotoUrl ? { foto_url: this.fotoUrl } : {}),
           estado_investidura: 'En Progreso',
-          cartilla: { regular: [], avanzada: [] },
+          cartilla: crearCartillaInicial(this.formData.clase_nombre),
           especialidades: []
         });
       }

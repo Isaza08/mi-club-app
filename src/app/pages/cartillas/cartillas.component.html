@@ -1,6 +1,11 @@
 <div class="page-container animate-fade-in">
   @if (cargando()) {
     <p class="subtitle">Cargando...</p>
+  } @else if (noAutorizado()) {
+    <div class="glass-panel empty-panel">
+      <p>No tienes acceso a la cartilla de este conquistador.</p>
+      <a routerLink="/cartillas" class="btn btn-primary">Volver a Cartillas</a>
+    </div>
   } @else if (!conquistador()) {
     <header class="page-header">
       <div class="header-titles">
@@ -26,8 +31,12 @@
         </button>
       } @empty {
         <div class="glass-panel empty-panel">
-          <p>No hay conquistadores registrados todavía.</p>
-          <a routerLink="/conquistadores" class="btn btn-primary">Ir a Conquistadores</a>
+          @if (esAdmin) {
+            <p>No hay conquistadores registrados todavía.</p>
+            <a routerLink="/conquistadores" class="btn btn-primary">Ir a Conquistadores</a>
+          } @else {
+            <p>Todavía no tienes conquistadores asignados.</p>
+          }
         </div>
       }
     </div>
@@ -120,10 +129,11 @@
           </div>
 
           <div class="tasks-list">
-            @for (pagina of sec.paginas; track pagina.numero_pagina) {
+            @for (pagina of sec.paginas; track $index) {
               <div class="task-card" (click)="toggleEstado(pagina, sec)">
                 <div class="task-info">
-                  <h4 class="task-title">Página {{ pagina.numero_pagina }}</h4>
+                  <span class="task-page">Página {{ pagina.pagina_texto || pagina.numero_pagina }}</span>
+                  <h4 class="task-title">{{ pagina.contenido || ('Página ' + pagina.numero_pagina) }}</h4>
                 </div>
 
                 <div class="task-actions">

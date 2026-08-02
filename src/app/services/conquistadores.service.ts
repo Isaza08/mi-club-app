@@ -51,6 +51,10 @@ export interface SeccionCartilla {
 
 export interface Pagina {
   numero_pagina: number;
+  // Texto a mostrar para la página, ej. "16–18" cuando el requisito abarca varias páginas.
+  pagina_texto?: string;
+  // Descripción del requisito (ej. "Ley del Conquistador y su significado").
+  contenido?: string;
   estado: 'Por hacer' | 'En progreso' | 'Terminada';
   fecha_realizacion: string | null;
 }
