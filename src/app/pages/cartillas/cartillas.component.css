@@ -65,7 +65,8 @@
   align-items: flex-start;
 }
 
-.tipo-toggle {
+.tipo-toggle,
+.mobile-section-select {
   display: none;
 }
 
@@ -439,37 +440,20 @@
     color: white;
   }
 
-  .nav-group.mobile-hidden {
-    display: none;
-  }
-
-  .nav-group.mt-4 {
-    margin-top: 0;
-  }
-
-  .nav-group-title {
-    display: none;
-  }
-
   .nav-group {
-    flex-direction: row;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    gap: 8px;
-    padding-bottom: 4px;
-    min-width: 0;
-    max-width: 100%;
+    display: none;
   }
 
-  .section-tab {
-    width: auto;
-    flex: 0 0 auto;
-    white-space: nowrap;
-    padding: 8px 14px;
-  }
-
-  .tab-title {
-    font-size: 0.85rem;
+  .mobile-section-select {
+    display: block;
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--glass-border);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-weight: 600;
   }
 
   .task-card {

@@ -96,6 +96,14 @@ export class CartillasComponent implements OnInit {
     return (tipo === 'regular' ? c?.cartilla?.regular : c?.cartilla?.avanzada) ?? [];
   }
 
+  seccionesActivas(): SeccionCartilla[] {
+    return this.secciones(this.tipoActivo);
+  }
+
+  onSeccionSeleccionada(indice: string) {
+    this.seleccionarSeccion(this.tipoActivo, Number(indice));
+  }
+
   seccionActiva(): SeccionCartilla | null {
     return this.secciones(this.tipoActivo)[this.indiceActivo] ?? null;
   }

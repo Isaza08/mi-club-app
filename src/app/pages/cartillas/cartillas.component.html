@@ -103,6 +103,19 @@
           <button class="tipo-toggle-btn" [class.active]="tipoActivo === 'avanzada'" (click)="seleccionarSeccion('avanzada', 0)">📙 Clase Avanzada</button>
         </div>
 
+        <select
+          class="mobile-section-select"
+          [ngModel]="indiceActivo"
+          (ngModelChange)="onSeccionSeleccionada($event)"
+          name="seccionActiva"
+        >
+          @for (sec of seccionesActivas(); track sec.titulo; let i = $index) {
+            <option [value]="i">{{ sec.titulo }} · {{ sec.estado_seccion }}</option>
+          } @empty {
+            <option disabled>Sin secciones aún.</option>
+          }
+        </select>
+
         <div class="nav-group" [class.mobile-hidden]="tipoActivo !== 'regular'">
           <h3 class="nav-group-title">📗 Clase Regular</h3>
           @for (sec of secciones('regular'); track sec.titulo; let i = $index) {
