@@ -121,7 +121,7 @@
   grid-column: 1 / -1;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1200px) {
   .page-container {
     padding: 20px 16px;
     gap: 16px;

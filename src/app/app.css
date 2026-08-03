@@ -296,7 +296,7 @@
 }
 
 /* ─── Responsive (mobile-first): sidebar → topbar + bottom tabbar ─── */
-@media (max-width: 900px) {
+@media (max-width: 1200px) {
   .dashboard-layout {
     display: flex;
     flex-direction: column;
