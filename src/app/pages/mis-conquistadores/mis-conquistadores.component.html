@@ -24,11 +24,25 @@
           <span class="subtitle">{{ c.clase_nombre }}</span>
         </div>
         <span class="badge" [class]="getBadgeClass(c.estado_investidura)">{{ c.estado_investidura }}</span>
-        <div class="progress-wrapper">
-          <div class="progress-bar">
-            <div class="progress-fill" [style.width]="getPorcentajeRegular(c) + '%'"></div>
+        <div class="progress-group">
+          <div class="progress-row">
+            <span class="progress-label">Regular</span>
+            <div class="progress-wrapper">
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width]="getPorcentajeRegular(c) + '%'"></div>
+              </div>
+              <span class="progress-text">{{ getPorcentajeRegular(c) }}%</span>
+            </div>
           </div>
-          <span class="progress-text">{{ getPorcentajeRegular(c) }}%</span>
+          <div class="progress-row">
+            <span class="progress-label">Avanzada</span>
+            <div class="progress-wrapper">
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width]="getPorcentajeAvanzada(c) + '%'"></div>
+              </div>
+              <span class="progress-text">{{ getPorcentajeAvanzada(c) }}%</span>
+            </div>
+          </div>
         </div>
       </a>
     } @empty {

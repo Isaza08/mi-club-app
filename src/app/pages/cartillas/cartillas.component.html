@@ -22,11 +22,25 @@
             <strong>{{ c.nombre }}</strong>
             <span class="subtitle">{{ c.clase_nombre }}</span>
           </div>
-          <div class="progress-wrapper">
-            <div class="progress-bar">
-              <div class="progress-fill" [style.width]="getPorcentajeRegular(c) + '%'"></div>
+          <div class="progress-group">
+            <div class="progress-row">
+              <span class="progress-label">Regular</span>
+              <div class="progress-wrapper">
+                <div class="progress-bar">
+                  <div class="progress-fill" [style.width]="getPorcentajeRegular(c) + '%'"></div>
+                </div>
+                <span class="progress-text">{{ getPorcentajeRegular(c) }}%</span>
+              </div>
             </div>
-            <span class="progress-text">{{ getPorcentajeRegular(c) }}%</span>
+            <div class="progress-row">
+              <span class="progress-label">Avanzada</span>
+              <div class="progress-wrapper">
+                <div class="progress-bar">
+                  <div class="progress-fill" [style.width]="getPorcentajeAvanzada(c) + '%'"></div>
+                </div>
+                <span class="progress-text">{{ getPorcentajeAvanzada(c) }}%</span>
+              </div>
+            </div>
           </div>
         </button>
       } @empty {
@@ -84,7 +98,12 @@
     <div class="cartilla-layout">
       <!-- Navegación lateral (Tabs de Secciones) -->
       <aside class="cartilla-sidebar">
-        <div class="nav-group">
+        <div class="tipo-toggle">
+          <button class="tipo-toggle-btn" [class.active]="tipoActivo === 'regular'" (click)="seleccionarSeccion('regular', 0)">📗 Clase Regular</button>
+          <button class="tipo-toggle-btn" [class.active]="tipoActivo === 'avanzada'" (click)="seleccionarSeccion('avanzada', 0)">📙 Clase Avanzada</button>
+        </div>
+
+        <div class="nav-group" [class.mobile-hidden]="tipoActivo !== 'regular'">
           <h3 class="nav-group-title">📗 Clase Regular</h3>
           @for (sec of secciones('regular'); track sec.titulo; let i = $index) {
             <button class="section-tab" [class.active]="tipoActivo === 'regular' && indiceActivo === i" (click)="seleccionarSeccion('regular', i)">
@@ -98,7 +117,7 @@
           }
         </div>
 
-        <div class="nav-group mt-4">
+        <div class="nav-group mt-4" [class.mobile-hidden]="tipoActivo !== 'avanzada'">
           <h3 class="nav-group-title">📙 Clase Avanzada</h3>
           @for (sec of secciones('avanzada'); track sec.titulo; let i = $index) {
             <button class="section-tab" [class.active]="tipoActivo === 'avanzada' && indiceActivo === i" (click)="seleccionarSeccion('avanzada', i)">

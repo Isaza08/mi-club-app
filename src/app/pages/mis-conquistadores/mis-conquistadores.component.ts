@@ -60,4 +60,11 @@ export class MisConquistadoresComponent implements OnInit, OnDestroy {
     const terminadas = paginas.filter(p => p.estado === 'Terminada').length;
     return Math.round((terminadas / paginas.length) * 100);
   }
+
+  getPorcentajeAvanzada(c: Conquistador): number {
+    const paginas = c.cartilla?.avanzada?.flatMap(s => s.paginas) || [];
+    if (paginas.length === 0) return 0;
+    const terminadas = paginas.filter(p => p.estado === 'Terminada').length;
+    return Math.round((terminadas / paginas.length) * 100);
+  }
 }
