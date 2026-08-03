@@ -69,7 +69,8 @@
 /* Table Styles */
 .table-container {
   padding: 0;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .data-table {
